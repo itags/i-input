@@ -2,10 +2,12 @@ module.exports = function (window) {
     "use strict";
 
     require('polyfill/polyfill-base.js');
+    require('./css/i-input.css');
 
     var itagCore =  require('itags.core')(window),
         itagName = 'i-input', // <-- define your own itag-name here
         DOCUMENT = window.document,
+        Event = require('event-dom/extra/valuechange.js')(window),
         Itag;
 
     if (!window.ITAGS[itagName]) {
@@ -20,8 +22,9 @@ module.exports = function (window) {
 
         Itag = DOCUMENT.createItag(itagName, {
             attrs: {
-                value: 'string',
                 'reset-value': 'string',
+                'placeholder': 'string',
+                'readonly': 'boolean',
                 'fm-lastitem': 'boolean',
                 'fm-selectionstart': 'number',
                 'fm-selectionend': 'number'
@@ -30,10 +33,9 @@ module.exports = function (window) {
             init: function() {
                 var element = this,
                     value = element.getText(),
-                    model = element.model,
                     content;
 
-                model.value = value;
+                element.setValueOnce('value', value);
 
                 // building the template of the itag:
                 content = '<input>' + value + '</input>';
@@ -46,8 +48,9 @@ module.exports = function (window) {
                 var element = this,
                     model = element.model,
                     input = element.getElement('>input');
-
                 input.setValue(model.value);
+                model.placeholder && input.setAttr('placeholder', model.placeholder, true);
+                model['reset-value'] && input.setAttr('reset-value', model['reset-value'], true);
             },
 
             reset: function() {

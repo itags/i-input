@@ -1,0 +1,147 @@
+/* ======================================================================= */
+/* ======================================================================= */
+/* ======================================================================= */
+/* Definition of itag shadow-css is done by defining a `dummy` css-rule    */
+/* for the dummy-element: `itag-css` --> its property (also dummy) `i-tag` /*
+/* will define which itag will be css-shadowed                             /*
+/* ======================================================================= */
+itag-css {
+    i-tag: i-input;  /* set the property-value to the proper itag */
+}
+/* ======================================================================= */
+/* ======================================================================= */
+/* ======================================================================= */
+
+
+/* ================================= */
+/* set invisiblity when not rendered */
+/* ================================= */
+i-input:not(.itag-rendered) {
+    /* don't set visibility to hidden --> you cannot set a focus on those items */
+    opacity: 0 !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    z-index: -1;
+}
+
+i-input:not(.itag-rendered) * {
+    opacity: 0 !important;
+}
+/* ================================= */
+
+i-input > input {
+    color: inherit; /* 1 */
+    font: inherit; /* 2 */
+    margin: 0; /* 3 */
+    padding: 0.5em 0.6em;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 3px #ddd;
+    border-radius: 4px;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+html i-input[disabled] > input {
+    cursor: not-allowed;
+    background-color: #eaeded;
+    color: #cad2d3;
+}
+
+i-input > input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+i-input > input {
+  line-height: normal;
+}
+
+i-input > input:focus,
+i-input.focussed > input {
+    outline: 0;
+    outline: thin dotted \9; /* IE6-9 */
+    border-color: #129FEA;
+}
+
+i-input[readonly] > input {
+    background: #eee; /* menu hover bg color */
+    color: #777; /* menu text color */
+    border-color: #ccc;
+}
+
+i-input > input:focus:invalid {
+    color: #b94a48;
+    border-color: #ee5f5b;
+}
+
+i-input > input:focus:invalid:focus {
+    border-color: #e9322d;
+}
+
+.pure-form-stacked i-input {
+    display: block;
+    margin: 0.25em 0;
+}
+
+.pure-form-aligned i-input {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    vertical-align: middle;
+}
+
+i-input.pure-input-rounded > input {
+    border-radius: 2em;
+    padding: 0.5em 1em;
+}
+
+.pure-form .pure-group i-input {
+    display: block;
+    padding: 10px;
+    margin: 0;
+    border-radius: 0;
+    position: relative;
+    top: -1px;
+}
+.pure-form .pure-group i-input > input:focus {
+    z-index: 2;
+}
+.pure-form .pure-group i-input:first-child > input {
+    top: 1px;
+    border-radius: 4px 4px 0 0;
+}
+.pure-form .pure-group i-input:last-child > input {
+    top: -2px;
+    border-radius: 0 0 4px 4px;
+}
+
+.pure-form i-input.pure-input-1 > input {
+    width: 100%;
+}
+.pure-form i-input.pure-input-2-3 > input {
+    width: 66%;
+}
+.pure-form i-input.pure-input-1-2 > input {
+    width: 50%;
+}
+.pure-form i-input.pure-input-1-3 > input {
+    width: 33%;
+}
+.pure-form i-input.pure-input-1-4 > input {
+    width: 25%;
+}
+
+@media only screen and (max-width : 480px) {
+    i-input {
+        margin-bottom: 0.3em;
+        display: block;
+    }
+
+    .pure-group i-input {
+        margin-bottom: 0;
+    }
+}
+
