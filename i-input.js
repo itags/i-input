@@ -15,9 +15,24 @@ module.exports = function (window) {
         Event.after('valuechange', function(e) {
             var newValue = e.value,
                 element = e.target,
-                model = element.model;
+                model = element.model,
+                prevValue = model.value;
 
             model.value = newValue;
+            /**
+            * Emitted when a the i-select changes its value
+            *
+            * @event i-select:valuechange
+            * @param e {Object} eventobject including:
+            * @param e.target {HtmlElement} the i-input element
+            * @param e.prevValue {String}
+            * @param e.newValue {String}
+            * @since 0.1
+            */
+            element.emit('valuechange', {
+                prevValue: prevValue,
+                newValue: newValue
+            });
         }, 'i-select > input');
 
         Itag = DOCUMENT.createItag(itagName, {
@@ -48,6 +63,7 @@ module.exports = function (window) {
                 var element = this,
                     model = element.model,
                     input = element.getElement('>input');
+                // it is safe to use setValue --> when the content hasn't changed, `setValue` doesn't do anything
                 input.setValue(model.value);
                 model.placeholder && input.setAttr('placeholder', model.placeholder, true);
                 model['reset-value'] && input.setAttr('reset-value', model['reset-value'], true);
@@ -56,7 +72,8 @@ module.exports = function (window) {
             reset: function() {
                 var model = this.model;
                 model.value = model['reset-value'] || '';
-                DOCUMENT.refreshItags(); // won't run when object.observe is available
+                // no need to call `refreshItags` --> the reset()-method doesn't come out of the blue
+                // so, the eventsystem will refresh it afterwards
             }
         });
 

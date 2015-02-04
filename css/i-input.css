@@ -29,16 +29,29 @@ i-input:not(.itag-rendered) * {
     opacity: 0 !important;
 }
 /* ================================= */
+i-input {
+    margin: 0;
+    display: inline-block;
+    *display: inline; /*IE 6/7*/
+    zoom: 1;
+    position: relative;
+    vertical-align: middle;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
 
 i-input > input {
-    color: inherit; /* 1 */
-    font: inherit; /* 2 */
-    margin: 0; /* 3 */
+    color: inherit;
+    font: inherit;
+    margin: 0;
     padding: 0.5em 0.6em;
     display: inline-block;
     border: 1px solid #ccc;
     box-shadow: inset 0 1px 3px #ddd;
     border-radius: 4px;
+    line-height: normal;
+    width: 100%; /* within the i-input always 100% */
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -55,9 +68,6 @@ i-input > input::-moz-focus-inner {
   padding: 0;
 }
 
-i-input > input {
-  line-height: normal;
-}
 
 i-input > input:focus,
 i-input.focussed > input {
@@ -98,7 +108,7 @@ i-input.pure-input-rounded > input {
     padding: 0.5em 1em;
 }
 
-.pure-form .pure-group i-input {
+.pure-group i-input {
     display: block;
     padding: 10px;
     margin: 0;
@@ -106,31 +116,31 @@ i-input.pure-input-rounded > input {
     position: relative;
     top: -1px;
 }
-.pure-form .pure-group i-input > input:focus {
+.pure-group i-input > input:focus {
     z-index: 2;
 }
-.pure-form .pure-group i-input:first-child > input {
+.pure-group i-input:first-child > input {
     top: 1px;
     border-radius: 4px 4px 0 0;
 }
-.pure-form .pure-group i-input:last-child > input {
+.pure-group i-input:last-child > input {
     top: -2px;
     border-radius: 0 0 4px 4px;
 }
 
-.pure-form i-input.pure-input-1 > input {
+i-input.pure-input-1 {
     width: 100%;
 }
-.pure-form i-input.pure-input-2-3 > input {
+i-input.pure-input-2-3 {
     width: 66%;
 }
-.pure-form i-input.pure-input-1-2 > input {
+i-input.pure-input-1-2 {
     width: 50%;
 }
-.pure-form i-input.pure-input-1-3 > input {
+i-input.pure-input-1-3 {
     width: 33%;
 }
-.pure-form i-input.pure-input-1-4 > input {
+i-input.pure-input-1-4 {
     width: 25%;
 }
 
