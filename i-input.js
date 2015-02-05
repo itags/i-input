@@ -4,17 +4,35 @@ module.exports = function (window) {
     require('polyfill/polyfill-base.js');
     require('./css/i-input.css');
 
-    var itagCore =  require('itags.core')(window),
-        itagName = 'i-input', // <-- define your own itag-name here
-        DOCUMENT = window.document,
+    var itagName = 'i-input', // <-- define your own itag-name here
         Event = require('event-dom/extra/valuechange.js')(window),
-        Itag;
+        Itag, IFormElement;
+
+    require('itags.core')(window);
 
     if (!window.ITAGS[itagName]) {
 
+        IFormElement = require('i-formelement')(window);
+
+        Event.before(itagName+':manualfocus', function(e) {
+            // the i-select itself is unfocussable, but its button is
+            // we need to patch `manualfocus`,
+            // which is emitted on node.focus()
+            // a focus by userinteraction will always appear on the button itself
+            // so we don't bother that
+            var element = e.target;
+            e.preventDefault();
+            element.itagReady().then(
+                function() {
+                    var input = element.getElement('input');
+                    input && input.focus(true);
+                }
+            );
+        });
+
         Event.after('valuechange', function(e) {
             var newValue = e.value,
-                element = e.target,
+                element = e.target.getParent(),
                 model = element.model,
                 prevValue = model.value;
 
@@ -33,10 +51,11 @@ module.exports = function (window) {
                 prevValue: prevValue,
                 newValue: newValue
             });
-        }, 'i-select > input');
+        }, 'i-input > input');
 
-        Itag = DOCUMENT.createItag(itagName, {
+        Itag = IFormElement.subClass(itagName, {
             attrs: {
+                'prop': 'string',
                 'reset-value': 'string',
                 'placeholder': 'string',
                 'readonly': 'boolean',
@@ -50,10 +69,10 @@ module.exports = function (window) {
                     value = element.getText(),
                     content;
 
-                element.setValueOnce('value', value);
+                element.defineWhenUndefined('value', value);
 
                 // building the template of the itag:
-                content = '<input>' + value + '</input>';
+                content = '<input value="'+value+'" />';
 
                 // set the content:
                 element.setHTML(content);
