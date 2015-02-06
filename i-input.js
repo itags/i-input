@@ -6,6 +6,7 @@ module.exports = function (window) {
 
     var itagName = 'i-input', // <-- define your own itag-name here
         Event = require('event-dom/extra/valuechange.js')(window),
+        DOCUMENT = window.document,
         Itag, IFormElement;
 
     require('itags.core')(window);
@@ -25,7 +26,7 @@ module.exports = function (window) {
             element.itagReady().then(
                 function() {
                     var input = element.getElement('input');
-                    input && input.focus(true);
+                    input && input.focus(true, true);
                 }
             );
         });
@@ -35,7 +36,7 @@ module.exports = function (window) {
                 element = e.target.getParent(),
                 model = element.model,
                 prevValue = model.value;
-
+console.warn('new value found: '+newValue);
             model.value = newValue;
             /**
             * Emitted when a the i-select changes its value
@@ -51,6 +52,9 @@ module.exports = function (window) {
                 prevValue: prevValue,
                 newValue: newValue
             });
+            // because `valuechange` does no finalize, we need to refresh
+            // the itags manually:
+            DOCUMENT.refreshItags();
         }, 'i-input > input');
 
         Itag = IFormElement.subClass(itagName, {
@@ -84,8 +88,10 @@ module.exports = function (window) {
                     input = element.getElement('>input');
                 // it is safe to use setValue --> when the content hasn't changed, `setValue` doesn't do anything
                 input.setValue(model.value);
-                model.placeholder && input.setAttr('placeholder', model.placeholder, true);
-                model['reset-value'] && input.setAttr('reset-value', model['reset-value'], true);
+
+// model.placeholder && input.setAttr('placeholder', model.placeholder, true);
+// model['reset-value'] && input.setAttr('reset-value', model['reset-value'], true);
+
             },
 
             reset: function() {
