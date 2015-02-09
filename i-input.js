@@ -59,18 +59,16 @@ console.warn('new value found: '+newValue);
 
         Itag = IFormElement.subClass(itagName, {
             attrs: {
-                'prop': 'string',
+                'i-prop': 'string',
                 'reset-value': 'string',
                 'placeholder': 'string',
-                'readonly': 'boolean',
-                'fm-lastitem': 'boolean',
-                'fm-selectionstart': 'number',
-                'fm-selectionend': 'number'
+                'readonly': 'boolean'
             },
 
             init: function() {
                 var element = this,
-                    value = element.getText(),
+                    designNode = element.getDesignNode(),
+                    value = designNode.getText(),
                     content;
 
                 element.defineWhenUndefined('value', value);
