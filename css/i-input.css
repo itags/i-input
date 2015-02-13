@@ -32,8 +32,6 @@ i-input:not(.itag-rendered) * {
 i-input {
     margin: 0;
     display: inline-block;
-    *display: inline; /*IE 6/7*/
-    zoom: 1;
     width: 12em;
     position: relative;
     vertical-align: middle;

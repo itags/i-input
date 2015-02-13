@@ -1,15 +1,14 @@
 module.exports = function (window) {
     "use strict";
 
-    require('polyfill/polyfill-base.js');
     require('./css/i-input.css');
+    require('itags.core')(window);
 
     var itagName = 'i-input', // <-- define your own itag-name here
-        Event = require('event-dom/extra/valuechange.js')(window),
         DOCUMENT = window.document,
+        ITSA = window.ITSA,
+        Event = ITSA.Event,
         Itag, IFormElement;
-
-    require('itags.core')(window);
 
     if (!window.ITAGS[itagName]) {
 
@@ -36,7 +35,6 @@ module.exports = function (window) {
                 element = e.target.getParent(),
                 model = element.model,
                 prevValue = model.value;
-console.warn('new value found: '+newValue);
             model.value = newValue;
             /**
             * Emitted when a the i-select changes its value
@@ -72,6 +70,8 @@ console.warn('new value found: '+newValue);
                     content;
 
                 element.defineWhenUndefined('value', value);
+                // set the reset-value to the inital-value in case `reset-value` was not present
+                element.defineWhenUndefined('reset-value', value);
 
                 // building the template of the itag:
                 content = '<input value="'+value+'" />';
@@ -94,7 +94,7 @@ console.warn('new value found: '+newValue);
 
             reset: function() {
                 var model = this.model;
-                model.value = model['reset-value'] || '';
+                model.value = model['reset-value'];
                 // no need to call `refreshItags` --> the reset()-method doesn't come out of the blue
                 // so, the eventsystem will refresh it afterwards
             }
