@@ -69,9 +69,9 @@ module.exports = function (window) {
                     value = designNode.getText(),
                     content;
 
-                element.defineWhenUndefined('value', value);
-                // set the reset-value to the inital-value in case `reset-value` was not present
-                element.defineWhenUndefined('reset-value', value);
+                element.defineWhenUndefined('value', value)
+                       // set the reset-value to the inital-value in case `reset-value` was not present
+                       .defineWhenUndefined('reset-value', value);
 
                 // building the template of the itag:
                 content = '<input value="'+value+'" />';
@@ -90,6 +90,11 @@ module.exports = function (window) {
 // model.placeholder && input.setAttr('placeholder', model.placeholder, true);
 // model['reset-value'] && input.setAttr('reset-value', model['reset-value'], true);
 
+            },
+
+            currentToReset: function() {
+                var model = this.model;
+                model['reset-value'] = model.value;
             },
 
             reset: function() {
