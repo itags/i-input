@@ -75,7 +75,7 @@ i-input.focussed > input {
     border-color: #129FEA;
 }
 
-i-input[readonly] > input {
+i-input[readonly="true"] > input {
     background: #eee; /* menu hover bg color */
     color: #777; /* menu text color */
     border-color: #ccc;
