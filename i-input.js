@@ -74,7 +74,7 @@ module.exports = function (window) {
             },
 
             render: function() {
-                element.setHTML('<input value="'+this.model.value+'" />');
+                this.setHTML('<input value="'+this.model.value+'" />');
             },
 
             sync: function() {
