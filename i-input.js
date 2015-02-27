@@ -65,7 +65,7 @@ module.exports = function (window) {
 
             init: function() {
                 var element = this,
-                    designNode = element.getDesignNode(),
+                    designNode = element.getItagContainer(),
                     value = designNode.getText();
 
                 element.defineWhenUndefined('value', value)
