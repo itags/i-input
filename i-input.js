@@ -5,7 +5,6 @@ module.exports = function (window) {
     require('itags.core')(window);
 
     var itagName = 'i-input', // <-- define your own itag-name here
-        DOCUMENT = window.document,
         ITSA = window.ITSA,
         Event = ITSA.Event,
         Itag, IFormElement;
@@ -25,7 +24,7 @@ module.exports = function (window) {
             element.itagReady().then(
                 function() {
                     var input = element.getElement('input');
-                    input && input.focus(true, true);
+                    input && input.focus(true);
                 }
             );
         });
@@ -50,9 +49,6 @@ module.exports = function (window) {
                 prevValue: prevValue,
                 newValue: newValue
             });
-            // because `valuechange` does no finalize, we need to refresh
-            // the itags manually:
-            DOCUMENT.refreshItags();
         }, 'i-input > input');
 
         Itag = IFormElement.subClass(itagName, {
@@ -97,8 +93,6 @@ module.exports = function (window) {
             reset: function() {
                 var model = this.model;
                 model.value = model['reset-value'];
-                // no need to call `refreshItags` --> the reset()-method doesn't come out of the blue
-                // so, the eventsystem will refresh it afterwards
             }
         });
 
