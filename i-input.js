@@ -30,11 +30,36 @@ module.exports = function (window) {
         });
 
         Event.after('valuechange', function(e) {
-            var newValue = e.value,
-                element = e.target.getParent(),
+            var element = e.target.getParent(),
+                newValue = e.value,
                 model = element.model,
-                prevValue = model.value;
+                prevValue = model.value,
+                validNumber, min, max;
             model.value = newValue;
+            switch (model.type) {
+                case 'number':
+                    validNumber = model.floated ? newValue.validateFloat() : newValue.validateNumber();
+                    if (validNumber) {
+                        min = model.min;
+                        max = model.max;
+                        if ((typeof min==='number') && (newValue<min)) {
+                            validNumber = false;
+                        }
+                        else if ((typeof max==='number') && (newValue>max)) {
+                            validNumber = false;
+                        }
+                    }
+                    model.invalid = !validNumber;
+                    break;
+                case 'email':
+                    model.invalid = !newValue.validateEmail();
+                    break;
+                case 'url':
+                    model.invalid = !newValue.validateURL();
+                    break;
+                default:
+                    model.invalid = false;
+            }
             /**
             * Emitted when a the i-select changes its value
             *
@@ -55,22 +80,56 @@ module.exports = function (window) {
             attrs: {
                 'i-prop': 'string',
                 'reset-value': 'string',
-                'placeholder': 'string',
-                'readonly': 'boolean'
+                placeholder: 'string',
+                readonly: 'boolean',
+                primaryonenter: 'boolean',
+                min: 'number',
+                max: 'number',
+                floated: 'boolean',
+                type: 'string',
+                invalid: 'boolean',
+                format: 'string'
             },
 
             init: function() {
                 var element = this,
                     designNode = element.getItagContainer(),
-                    value = designNode.getText();
+                    model = element.model,
+                    value = designNode.getText(),
+                    validNumber, min, max;
 
                 element.defineWhenUndefined('value', value)
                        // set the reset-value to the inital-value in case `reset-value` was not present
                        .defineWhenUndefined('reset-value', value);
+                value = model.value;
+                switch (model.type) {
+                    case 'number':
+                        validNumber = model.floated ? value.validateFloat() : value.validateNumber();
+                        if (validNumber) {
+                            min = model.min;
+                            max = model.max;
+                            if ((typeof min==='number') && (value<min)) {
+                                validNumber = false;
+                            }
+                            else if ((typeof max==='number') && (value>max)) {
+                                validNumber = false;
+                            }
+                        }
+                        model.invalid = !validNumber;
+                        break;
+                    case 'email':
+                        model.invalid = !value.validateEmail();
+                        break;
+                    case 'url':
+                        model.invalid = !value.validateURL();
+                        break;
+                    default:
+                        model.invalid = false;
+                }
             },
 
             render: function() {
-                this.setHTML('<input value="'+this.model.value+'" />');
+                this.setHTML('<input type="text" value="'+this.model.value+'" />');
             },
 
             sync: function() {
@@ -79,10 +138,24 @@ module.exports = function (window) {
                     input = element.getElement('>input');
                 // it is safe to use setValue --> when the content hasn't changed, `setValue` doesn't do anything
                 input.setValue(model.value);
-
-// model.placeholder && input.setAttr('placeholder', model.placeholder, true);
-// model['reset-value'] && input.setAttr('reset-value', model['reset-value'], true);
-
+                if (model.placeholder) {
+                    input.setAttr('placeholder', model.placeholder, true);
+                }
+                else {
+                    input.removeAttr('placeholder', true);
+                }
+                if (model.primaryonenter) {
+                    input.setAttr('fm-primaryonenter', model.primaryonenter, true);
+                }
+                else {
+                    input.removeAttr('fm-primaryonenter', true);
+                }
+                if (model.readonly) {
+                    input.setAttr('readonly', model.readonly, true);
+                }
+                else {
+                    input.removeAttr('readonly', true);
+                }
             },
 
             currentToReset: function() {
