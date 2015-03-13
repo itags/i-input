@@ -24,10 +24,18 @@ module.exports = function (window) {
             element.itagReady().then(
                 function() {
                     var input = element.getElement('input');
-                    input && input.focus(true);
+                    input && input.focus(true); // MUST be silent
                 }
             );
         });
+
+        Event.after(['keypress', 'mouseup', 'panup', 'mousedown', 'pandown'], function(e) {
+            var inputNode = e.target,
+                element = inputNode.getParent(),
+                model = element.model;
+            model['selection-start'] = inputNode.selectionStart || 0;
+            model['selection-end'] = inputNode.selectionEnd || 0;
+        }, 'i-input input');
 
         Event.after('valuechange', function(e) {
             var element = e.target.getParent(),
@@ -88,7 +96,9 @@ module.exports = function (window) {
                 floated: 'boolean',
                 type: 'string',
                 invalid: 'boolean',
-                format: 'string'
+                format: 'string',
+                'selection-start': 'number',
+                'selection-end': 'number'
             },
 
             init: function() {
@@ -135,9 +145,18 @@ module.exports = function (window) {
             sync: function() {
                 var element = this,
                     model = element.model,
-                    input = element.getElement('>input');
+                    input = element.getElement('>input'),
+                    selectionEnd, selectionStart;
                 // it is safe to use setValue --> when the content hasn't changed, `setValue` doesn't do anything
                 input.setValue(model.value);
+
+                // cautious: fm-selectionstart can be 0 --> which would lead into a falsy value
+                selectionStart = model['selection-start'];
+                (selectionStart===undefined) && (selectionStart=String(model.value).length);
+                selectionEnd = Math.max(model['selection-end'] || selectionStart, selectionStart);
+                input.selectionEnd = selectionEnd;
+                input.selectionStart = selectionStart;
+
                 if (model.placeholder) {
                     input.setAttr('placeholder', model.placeholder, true);
                 }
@@ -166,6 +185,10 @@ module.exports = function (window) {
             reset: function() {
                 var model = this.model;
                 model.value = model['reset-value'];
+            },
+
+            invalid: function() {
+                return this.model.invalid;
             }
         });
 
