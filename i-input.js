@@ -29,12 +29,26 @@ module.exports = function (window) {
             );
         });
 
-        Event.after(['keypress', 'mouseup', 'panup', 'mousedown', 'pandown'], function(e) {
+        Event.after(['keyup', 'mouseup', 'panup', 'mousedown', 'pandown'], function(e) {
             var inputNode = e.target,
                 element = inputNode.getParent(),
-                model = element.model;
-            model['selection-start'] = inputNode.selectionStart || 0;
-            model['selection-end'] = inputNode.selectionEnd || 0;
+                model = element.model,
+                updateCursorPos, cursorMove;
+            updateCursorPos = function() {
+                model['selection-start'] = inputNode.selectionStart || 0;
+                model['selection-end'] = inputNode.selectionEnd || 0;
+            };
+            cursorMove = function(keyCode) {
+                return (keyCode>=37) && (keyCode<=40);
+            };
+            if ((e.type==='keyup') && !cursorMove(e.keyCode)) {
+                // we need to wait after the value has been processed by valuechange, otherwise model.value resets
+                // itself and won;t change!
+                Event.onceAfter('valuechange', updateCursorPos, 'i-input > input');
+            }
+            else {
+                updateCursorPos();
+            }
         }, 'i-input input');
 
         Event.after('valuechange', function(e) {
@@ -43,6 +57,7 @@ module.exports = function (window) {
                 model = element.model,
                 prevValue = model.value,
                 validNumber, min, max;
+
             model.value = newValue;
             switch (model.type) {
                 case 'number':
@@ -180,6 +195,10 @@ module.exports = function (window) {
             currentToReset: function() {
                 var model = this.model;
                 model['reset-value'] = model.value;
+            },
+
+            getValue: function() {
+                return this.model.value;
             },
 
             reset: function() {
