@@ -41,24 +41,31 @@ module.exports = function (window) {
             cursorMove = function(keyCode) {
                 return (keyCode>=37) && (keyCode<=40);
             };
-            if ((e.type==='keyup') && !cursorMove(e.keyCode)) {
-                // we need to wait after the value has been processed by valuechange, otherwise model.value resets
-                // itself and won;t change!
-                Event.onceAfter('valuechange', updateCursorPos, 'i-input > input');
-            }
-            else {
+            if ((e.type!=='keyup') || cursorMove(e.keyCode)) {
                 updateCursorPos();
             }
         }, 'i-input input');
 
+        Event.after('keypress', function(e) {
+            var inputNode = e.target,
+                element = inputNode.getParent(),
+                model = element.model;
+            model.value = inputNode.getValue();
+            model['selection-start'] = inputNode.selectionStart || 0;
+            model['selection-end'] = inputNode.selectionEnd || 0;
+        }, 'i-input input', true);
+
         Event.after('valuechange', function(e) {
-            var element = e.target.getParent(),
+            var inputNode = e.target,
+                element = inputNode.getParent(),
                 newValue = e.value,
                 model = element.model,
                 prevValue = model.value,
                 validNumber, min, max;
 
             model.value = newValue;
+            model['selection-start'] = inputNode.selectionStart || 0;
+            model['selection-end'] = inputNode.selectionEnd || 0;
             switch (model.type) {
                 case 'number':
                     validNumber = model.floated ? newValue.validateFloat() : newValue.validateNumber();
@@ -111,6 +118,7 @@ module.exports = function (window) {
                 floated: 'boolean',
                 type: 'string',
                 invalid: 'boolean',
+                required: 'boolean',
                 format: 'string',
                 'selection-start': 'number',
                 'selection-end': 'number'
@@ -119,59 +127,34 @@ module.exports = function (window) {
             init: function() {
                 var element = this,
                     designNode = element.getItagContainer(),
-                    model = element.model,
-                    value = designNode.getText(),
-                    validNumber, min, max;
-
+                    value = designNode.getText();
                 element.defineWhenUndefined('value', value)
                        // set the reset-value to the inital-value in case `reset-value` was not present
                        .defineWhenUndefined('reset-value', value);
-                value = model.value;
-                switch (model.type) {
-                    case 'number':
-                        validNumber = model.floated ? value.validateFloat() : value.validateNumber();
-                        if (validNumber) {
-                            min = model.min;
-                            max = model.max;
-                            if ((typeof min==='number') && (value<min)) {
-                                validNumber = false;
-                            }
-                            else if ((typeof max==='number') && (value>max)) {
-                                validNumber = false;
-                            }
-                        }
-                        model.invalid = !validNumber;
-                        break;
-                    case 'email':
-                        model.invalid = !value.validateEmail();
-                        break;
-                    case 'url':
-                        model.invalid = !value.validateURL();
-                        break;
-                    default:
-                        model.invalid = false;
-                }
             },
 
             render: function() {
-                this.setHTML('<input type="text" value="'+this.model.value+'" />');
+                this.setHTML('<input value="'+this.model.value+'" />');
             },
 
             sync: function() {
                 var element = this,
                     model = element.model,
                     input = element.getElement('>input'),
-                    selectionEnd, selectionStart;
+                    value = model.value,
+                    selectionEnd, selectionStart, validNumber, min, max;
+
                 // it is safe to use setValue --> when the content hasn't changed, `setValue` doesn't do anything
-                input.setValue(model.value);
+                input.setValue(value);
 
                 // cautious: fm-selectionstart can be 0 --> which would lead into a falsy value
                 selectionStart = model['selection-start'];
-                (selectionStart===undefined) && (selectionStart=String(model.value).length);
+                (selectionStart===undefined) && (selectionStart=String(value).length);
                 selectionEnd = Math.max(model['selection-end'] || selectionStart, selectionStart);
                 input.selectionEnd = selectionEnd;
                 input.selectionStart = selectionStart;
 
+                input.setAttr('type', (model.type==='password') ? 'password' : 'text', true);
                 if (model.placeholder) {
                     input.setAttr('placeholder', model.placeholder, true);
                 }
@@ -189,6 +172,30 @@ module.exports = function (window) {
                 }
                 else {
                     input.removeAttr('readonly', true);
+                }
+                switch (model.type) {
+                    case 'number':
+                        validNumber = model.floated ? value.validateFloat() : value.validateNumber();
+                        if (validNumber) {
+                            min = model.min;
+                            max = model.max;
+                            if ((typeof min==='number') && (value<min)) {
+                                validNumber = false;
+                            }
+                            else if ((typeof max==='number') && (value>max)) {
+                                validNumber = false;
+                            }
+                        }
+                        model.invalid = model.required && !validNumber;
+                        break;
+                    case 'email':
+                        model.invalid = model.required && !value.validateEmail();
+                        break;
+                    case 'url':
+                        model.invalid = model.required && !value.validateURL();
+                        break;
+                    default:
+                        model.invalid = model.required ? (value.length===0) : false;
                 }
             },
 
