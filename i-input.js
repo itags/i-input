@@ -93,7 +93,7 @@ module.exports = function (window) {
             /**
             * Emitted when a the i-select changes its value
             *
-            * @event i-select:valuechange
+            * @event i-input:valuechange
             * @param e {Object} eventobject including:
             * @param e.target {HtmlElement} the i-input element
             * @param e.prevValue {String}
@@ -104,6 +104,42 @@ module.exports = function (window) {
                 prevValue: prevValue,
                 newValue: newValue
             });
+        }, 'i-input > input');
+
+        Event.after('keypress', function(e) {
+            var inputNode = e.target,
+                element = inputNode.getParent();
+            (e.keyCode===13) && inputNode.hasFocus() && inputNode.blur();
+        }, 'i-input > input');
+
+        Event.after('focus', function(e) {
+            var inputNode = e.target,
+                element = inputNode.getParent();
+            element.setData('_initialVal', inputNode.getValue());
+        }, 'i-input > input');
+
+        Event.after('blur', function(e) {
+            var inputNode = e.target,
+                element = inputNode.getParent(),
+                prevValue = element.getData('_initialVal'),
+                newValue = inputNode.getValue();
+            if (newValue!==prevValue) {
+                /**
+                * Emitted when a the i-select changes its value
+                *
+                * @event i-input:changed
+                * @param e {Object} eventobject including:
+                * @param e.target {HtmlElement} the i-input element
+                * @param e.prevValue {String}
+                * @param e.newValue {String}
+                * @since 0.1
+                */
+                element.emit('changed', {
+                    prevValue: prevValue,
+                    newValue: newValue
+                });
+            }
+            element.removeData('_initialVal');
         }, 'i-input > input');
 
         Itag = IFormElement.subClass(itagName, {
