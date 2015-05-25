@@ -235,20 +235,6 @@ module.exports = function (window) {
                 }
             },
 
-            currentToReset: function() {
-                var model = this.model;
-                model['reset-value'] = model.value;
-            },
-
-            getValue: function() {
-                return this.model.value;
-            },
-
-            reset: function() {
-                var model = this.model;
-                model.value = model['reset-value'];
-            },
-
             invalid: function() {
                 return this.model.invalid;
             }
